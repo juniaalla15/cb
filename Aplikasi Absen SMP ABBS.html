@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ 
+  <div class="form-container">
+  <meta charset="utf-8">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet">
+    <div class="form-title">
+      Absensi Guru Karyawan SMP ABBS SURAKARTA
+    </div>
+    <div class="futuristic-clock" id="clock">
+      00:00:00
+    </div>
+    
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #121212;
+    color: #ffffff;
+  }
+  .form-container {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 375px;
+    max-width: 90%;
+    box-sizing: border-box;
+    margin-top: 20px;
+  }
+  .form-group {
+    margin-bottom: 15px;
+  }
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  select, input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  button {
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    width: 100%;
+  }
+  #map {
+    width: 100%;
+    height: 200px;
+    border-radius: 5px;
+    margin-top: 10px;
+  }
+  .form-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  .futuristic-clock {
+    font-size: 36px;
+    color: #007bff;
+    text-shadow: 0px 0px 8px #007bff;
+    text-align: center;
+    margin-top: 20px;
+  }
+  .successModal{
+  color: #000000;
+  }
+</style>
+
+<body>
+  
+  <div class="container text-center">
+        <form name="submit-to-google-sheet">
+          <!-- Dropdown for selecting class -->
+         <form id="myForm">
+      <div class="form-group">
+        <label for="name">Nama:</label>
+        <select id="name" name="name">
+          <option value="Eka Noer Maya Sari">Eka Noer Maya Sari</option>
+          <option value="Muamar Fariq Salafy">Muamar Fariq Salafy</option>
+          <option value="Sinta fitriana">Sinta Fitriana</option>
+          <option value="Joko Ariyanto">Joko Ariyanto</option>
+          <option value="Alla Junia Nurdin">Alla' Junia Nurdin</option>
+          <option value="Fatma Roudhotul Rafida Kolis">Fatma Roudhotul Rafida Kolis</option>
+          <option value="Hari Rohmah">Hari Rohmah</option>
+          <option value="Iin Indah Saputri">Iin Indah Saputri</option>
+          <option value="Siti Khoimah">Siti Khoimah</option>
+          <option value="Siti Asiyah Wardatul Jannah">Siti Asiyah Wardatul Jannah</option>
+          <option value="Muhammad Fahmi Aziz">Muhammad Fahmi Aziz</option>
+          <option value="Sharih Shadri">Sharih Shadri</option>
+          <option value="Andi  Wijayanto">Andi  Wijayanto</option>
+          <option value="Lutfa Usaidah">Lutfa Usaidah</option>
+          <option value="Ida Aryani">Ida Aryani</option>
+          <option value="Rifqi Syarifudin">Rifqi Syarifudin</option>
+          <!-- Other options... -->
+        </select>
+      </div>
+<div class="form-group">
+        <label for="location">Lokasi:</label>
+        <input type="text" id="location" name="location" style="width: calc(94%);" readonly>
+        <button type="button" id="getLocation">Dapatkan Lokasi</button>
+      </div>
+      <div id="map" align="center"></div>
+      <input type="hidden" id="time" name="time">
+   <input type="hidden" id="date" name="date">
+          <!-- Loading animation -->
+          <div class="text-center" id="loading" style="display: none;">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+<!-- Add a modal for "Data berhasil tersimpan" -->
+  <div class="modal" tabindex="-1" role="dialog" id="successModal">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body text-center">
+          <h5 class="modal-title mb-3" style="color: black;"> Data berhasil tersimpan</h5>
+          <p style="color: black;"> Data Anda telah berhasil disimpan di Google Sheets.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+          <button type="submit" class="btn btn-primary" id="submitButton">Absen</button>
+        </form>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbzXDop7SEDYx564psvJ5mNG3Ll4GZ58b62xEoRCvTJizLlbXREaKZOJ-xzzUutwN2s2TQ/exec';
+    document.addEventListener("DOMContentLoaded", function () {
+    
+      const form = document.getElementById("myForm");
+      const submitButton = document.querySelector("button[type='submit']");
+      
+
+      // Check if any field is empty
+        if (!nameInput.value || !locationInput.value) {
+          event.preventDefault();
+          alert("Semua isian harus diisi.");
+        }
+
+        // Check if the current time is between 6 AM and 10 AM
+        if (currentTime.getHours() < 24 || currentTime.getHours() > 10) {
+          event.preventDefault();
+          alert("Formulir hanya dapat diisi antara jam 6-23 pagi.");
+        }
+       
+      });
+      
+      const locationInput = document.getElementById('location');
+    const getLocationButton = document.getElementById('getLocation');
+    const mapContainer = document.getElementById('map');
+    const timeInput = document.getElementById('time');
+    const dateInput = document.getElementById('date');
+    const clockElement = document.getElementById('clock');
+    const form = document.forms['submit-to-google-sheet'];
+ const loading = document.getElementById('loading');
+    const submitButton = document.getElementById('submitButton');
+    const currentTime = new Date();
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    
+    function updateClock() {
+      const now = new Date();
+      const hours = now.getHours().toString().padStart(2, '0');
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const seconds = now.getSeconds().toString().padStart(2, '0');
+      clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+
+    setInterval(updateClock, 1000);
+    updateClock();
+    
+     getLocationButton.addEventListener('click', () => {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          locationInput.value = `${latitude}, ${longitude}`;
+          const mapUrl = `https://maps.google.com/maps?q=${latitude},${longitude}&output=embed`;
+          mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" scrolling="no" 
+
+marginheight="0" marginwidth="0" src="${mapUrl}"></iframe>`;
+        });
+      } else {
+        locationInput.value = "Lokasi tidak tersedia";
+      }
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+  const currentTime = new Date().toLocaleTimeString('en-US', { hour12: false });
+  const currentDate = new Date().toLocaleDateString('en-US');
+  
+  dateInput.value = currentDate;
+
+  document.getElementById('time').value = currentTime;
+});
+const formattedDate = `${currentTime.getFullYear()}-${(currentTime.getMonth() + 1).toString().padStart(2, '0')}-${currentTime.getDate().toString().padStart(2, '0')}`;
+  const formattedTime = currentTime.toLocaleTimeString('en-US', { hour12: false });
+    
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      // Display loading animation and disable submit button
+      loading.style.display = 'block';
+      submitButton.disabled = true;
+
+      fetch(scriptURL, { method: 'POST', body: new FormData(form) })
+        .then(response => {
+          console.log('Success!', response);
+          successModal.show(); // Show the success modal
+
+          // Hide the modal after 5 seconds
+          setTimeout(function() {
+            successModal.hide();
+          }, 5000);
+        })
+        .catch(error => console.error('Error!', error.message))
+        .finally(() => {
+          // Hide loading animation and enable submit button
+          loading.style.display = 'none';
+          submitButton.disabled = false;
+        });
+});
+  </script>
+</body>
+</html>
